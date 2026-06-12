@@ -91,6 +91,10 @@ html = replaceOnce(
   '<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">'
 );
 html = replaceOnce(html, '<title>companion</title>', '<title>Desktop Renai Revolution 2D</title>');
+html = html.replace(
+  /\n<link href="https:\/\/fonts\.googleapis\.com\/[^"]+" rel="stylesheet">/,
+  ''
+);
 html = replaceOnce(html, '</style>', `${mobileCss}\n</style>`);
 
 fs.mkdirSync(outDir, { recursive: true });
