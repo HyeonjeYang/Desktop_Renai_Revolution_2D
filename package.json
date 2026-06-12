@@ -4,6 +4,7 @@
   "description": "A small always-on-top desktop companion widget.",
   "main": "main.js",
   "private": true,
+  "author": "Hyeonje Yang",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
@@ -25,7 +26,7 @@
       "LICENSE"
     ],
     "asar": true,
-    "compression": "maximum",
+    "compression": "normal",
     "win": {
       "target": [
         {
