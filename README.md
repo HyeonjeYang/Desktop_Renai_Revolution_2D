@@ -1,6 +1,6 @@
 # デスクトップ恋愛革命 - 2D
 
-A browser-based desktop GF widget that turns six hand-drawn character images into a dynamic, interactive 2D GF!!!
+A browser-based desktop GF widget that turns six hand-drawn character images into a dynamic, interactive 2D GF!
 
 <img width="466.5" height="592" alt="KakaoTalk_20260429_233752319" src="https://github.com/user-attachments/assets/2dc34605-7b2d-4f67-8ec0-c9239056411b" />
 
@@ -42,4 +42,4 @@ No internet connection required.
 ## Credits
 
 - Original character artwork: **Hyeonje Yang**
-- Implementation assistance: **Claude (Anthropic)**
+- Implementation assistance: **Claude (Anthropic) & Codex (OpenAI)**
