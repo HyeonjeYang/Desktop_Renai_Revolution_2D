@@ -1,0 +1,53 @@
+{
+  "name": "desktop-renai-revolution-2d",
+  "version": "1.1.0",
+  "description": "A small always-on-top desktop companion widget.",
+  "main": "main.js",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win zip portable",
+    "dist:win": "electron-builder --win zip portable"
+  },
+  "build": {
+    "appId": "com.desktoprenai.revolution2d",
+    "productName": "Desktop Renai Revolution 2D",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "2D_desktop_GF_ver2.html",
+      "main.js",
+      "README.md",
+      "LICENSE"
+    ],
+    "asar": true,
+    "compression": "maximum",
+    "win": {
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable-${arch}.${ext}"
+    }
+  },
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12"
+  }
+}
