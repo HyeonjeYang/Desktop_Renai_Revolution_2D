@@ -138,6 +138,61 @@ body {
 }
 .start-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
+.resume-panel {
+  display: none;
+  margin: 4px 0 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: white;
+  text-align: left;
+}
+
+.resume-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.resume-text {
+  font-size: 11px;
+  color: var(--sub);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.resume-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.secondary-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.secondary-btn:hover { border-color: var(--pink); }
+
+.text-btn {
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: var(--sub);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.text-btn:hover { color: var(--text); }
+
 /* WIDGET */
 #widget {
   position: fixed;
@@ -374,6 +429,15 @@ body {
       <button class="persona-btn" data-p="kohai" onclick="selectPersona(this)">장난끼 후배</button>
     </div>
 
+    <div class="resume-panel" id="resumePanel">
+      <div class="resume-title">저장된 만남이 있어요</div>
+      <div class="resume-text" id="resumeText"></div>
+      <div class="resume-actions">
+        <button class="secondary-btn" onclick="resumeApp()">이어하기</button>
+        <button class="text-btn" onclick="clearSavedApp()">기록 지우기</button>
+      </div>
+    </div>
+
     <button class="start-btn" onclick="startApp()">시작하기</button>
   </div>
 </div>
@@ -383,6 +447,7 @@ body {
     <span class="persona-tag" id="personaTag">츤데레</span>
     <div class="topbar-btns">
       <button class="top-btn" onclick="changePersona()">성격변경</button>
+      <button class="top-btn" onclick="resetProgress()">초기화</button>
       <button class="top-btn" id="minBtn" onclick="toggleWidget()">━</button>
     </div>
   </div>
@@ -484,6 +549,13 @@ let locked = false;
 let selectedPersona = 'tsun';
 let minimized = false;
 let affection = 50;
+const SAVE_KEY = 'desktop-gf-state-v1';
+
+const RESUME_LINES = {
+  tsun: ['...다시 왔네? 기다린 건 아니거든. 그냥, 조금 신경 쓰였을 뿐이야.', 'O_default'],
+  nuna: ['어서 와, 다시 와줘서 기뻐. 오늘도 천천히 같이 있어볼까?', 'O_interest'],
+  kohai: ['선배! 다시 왔네요? 방금까지 뭐 했는지 다 말해줘요!', 'O_interest'],
+};
 
 // ============ DIALOGUE ============
 const LINES = {
@@ -984,12 +1056,86 @@ function fillName(text) {
   });
 }
 
-function changeAffection(delta) {
-  if (!delta) return;
-  affection = Math.max(0, Math.min(100, affection + delta));
+function clampAffection(value) {
+  const next = Number(value);
+  if (!Number.isFinite(next)) return 50;
+  return Math.max(0, Math.min(100, Math.round(next)));
+}
+
+function updateAffectionUI() {
   document.getElementById('affFill').style.width = affection + '%';
   document.getElementById('affValue').textContent = affection;
+}
+
+function getSavedState() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    const saved = JSON.parse(raw);
+    if (!saved || !saved.userName || !saved.charName || !LINES[saved.persona]) return null;
+    return {
+      userName: String(saved.userName).slice(0, 10),
+      charName: String(saved.charName).slice(0, 10),
+      persona: saved.persona,
+      glassesOn: saved.glassesOn !== false,
+      affection: clampAffection(saved.affection),
+      updatedAt: Number(saved.updatedAt) || 0,
+    };
+  } catch (_) {
+    return null;
+  }
+}
+
+function saveState() {
+  if (!userName || !charName || !LINES[persona]) return;
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      userName: userName,
+      charName: charName,
+      persona: persona,
+      glassesOn: glassesOn,
+      affection: affection,
+      updatedAt: Date.now(),
+    }));
+  } catch (_) {}
+}
+
+function selectPersonaByKey(key) {
+  const btn = document.querySelector('.persona-btn[data-p="' + key + '"]');
+  if (btn) selectPersona(btn);
+}
+
+function updateResumePanel() {
+  const panel = document.getElementById('resumePanel');
+  if (!panel) return;
+  const saved = getSavedState();
+  if (!saved) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+  document.getElementById('resumeText').textContent =
+    saved.charName + '와 이어하기 · ' + LINES[saved.persona].personaTag + ' · 호감도 ' + saved.affection;
+}
+
+function prepareSetupFromSave() {
+  const saved = getSavedState();
+  if (saved) {
+    document.getElementById('userName').value = saved.userName;
+    document.getElementById('charName').value = saved.charName;
+    selectPersonaByKey(saved.persona);
+  } else {
+    selectPersonaByKey(selectedPersona);
+  }
+  updateResumePanel();
+}
+
+function changeAffection(delta) {
+  if (!delta) return;
+  affection = clampAffection(affection + delta);
+  updateAffectionUI();
   showAffectionDelta(delta);
+  saveState();
 }
 
 function showAffectionDelta(delta) {
@@ -1098,22 +1244,76 @@ function startApp() {
 
   userName = u; charName = c; persona = selectedPersona;
   affection = 50;
-  document.getElementById('affFill').style.width = '50%';
-  document.getElementById('affValue').textContent = '50';
+  glassesOn = true;
+  launchWidget(false);
+}
 
+function resumeApp() {
+  const saved = getSavedState();
+  if (!saved) {
+    alert('저장된 기록이 없어요.');
+    updateResumePanel();
+    return;
+  }
+  userName = saved.userName;
+  charName = saved.charName;
+  persona = saved.persona;
+  selectedPersona = saved.persona;
+  glassesOn = saved.glassesOn;
+  affection = saved.affection;
+  launchWidget(true);
+}
+
+function launchWidget(isResume) {
+  minimized = false;
+  updateAffectionUI();
   document.getElementById('setupScreen').style.display = 'none';
   document.getElementById('widget').style.display = 'flex';
   document.getElementById('personaTag').textContent = LINES[persona].personaTag;
+  document.getElementById('minBtn').textContent = '━';
+  document.getElementById('charArea').style.display = '';
+  document.querySelector('.input-area').style.display = '';
+  document.getElementById('affBar').style.display = '';
+  document.getElementById('charImg').src = getImg(glassesOn ? 'O_default' : 'X_default');
+  saveState();
 
-  glassesOn = true;
-  const greeting = LINES[persona].greeting(userName, charName);
+  const greeting = isResume ? (RESUME_LINES[persona] || RESUME_LINES.tsun) : LINES[persona].greeting(userName, charName);
   setTimeout(function(){
-    showBubble(greeting[0], greeting[1], 4000);
+    showBubble(fillName(greeting[0]), greeting[1], 4000);
     setTimeout(startIdle, 4500);
   }, 400);
 }
 
+function clearSavedApp() {
+  if (!confirm('저장된 기록을 지울까요?')) return;
+  try { localStorage.removeItem(SAVE_KEY); } catch (_) {}
+  updateResumePanel();
+}
+
+function resetProgress() {
+  if (!confirm('지금 기록을 지우고 처음 화면으로 돌아갈까요?')) return;
+  clearTimeout(idleTimer); clearTimeout(bubbleTimer);
+  try { localStorage.removeItem(SAVE_KEY); } catch (_) {}
+  userName = '';
+  charName = '';
+  persona = selectedPersona || 'tsun';
+  glassesOn = true;
+  affection = 50;
+  minimized = false;
+  document.getElementById('userName').value = '';
+  document.getElementById('charName').value = '';
+  selectPersonaByKey('tsun');
+  updateAffectionUI();
+  document.getElementById('setupScreen').style.display='flex';
+  document.getElementById('widget').style.display='none';
+  updateResumePanel();
+}
+
 function changePersona() {
+  document.getElementById('userName').value = userName;
+  document.getElementById('charName').value = charName;
+  selectPersonaByKey(persona);
+  updateResumePanel();
   document.getElementById('setupScreen').style.display='flex';
   document.getElementById('widget').style.display='none';
   clearTimeout(idleTimer); clearTimeout(bubbleTimer);
@@ -1129,6 +1329,8 @@ function toggleWidget() {
   aff.style.display = minimized ? 'none' : '';
   document.getElementById('minBtn').textContent = minimized ? '+' : '━';
 }
+
+prepareSetupFromSave();
 </script>
 </body>
 </html>
