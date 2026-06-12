@@ -10,7 +10,11 @@
     "start": "electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder --win zip portable",
-    "dist:win": "electron-builder --win zip portable"
+    "dist:win": "electron-builder --win zip portable",
+    "mobile:prepare": "node scripts/prepare-mobile-web.js",
+    "android:sync": "npm run mobile:prepare && npx cap sync android",
+    "android:open": "npm run android:sync && npx cap open android",
+    "android:build": "npm run android:sync && cd android && gradlew.bat assembleDebug"
   },
   "build": {
     "appId": "com.desktoprenai.revolution2d",
@@ -48,6 +52,9 @@
     }
   },
   "devDependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/cli": "^8.4.0",
+    "@capacitor/core": "^8.4.0",
     "electron": "^39.2.7",
     "electron-builder": "^26.0.12"
   }
