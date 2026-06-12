@@ -20,6 +20,7 @@ The widget composites six source images (three expressions — default, interest
 - Korean particle handling for names with and without 받침.
 - Saved sessions that restore names, personality, affection, and glasses state.
 - Electron desktop wrapper with a frameless, draggable, always-on-top bottom-corner window.
+- Android app wrapper through Capacitor, running as a normal lightweight app without overlay permissions.
 
 ## Language
 
@@ -40,6 +41,15 @@ The desktop app opens as a small frameless window near the bottom-right of the s
 
 Open `2D_desktop_GF_ver2.html` in any modern browser. Enter your name and the character's name, choose a personality, and begin.
 
+### Android app
+
+```powershell
+npm.cmd install
+npm.cmd run android:sync
+```
+
+Open the `android/` folder in Android Studio to run it on a device or emulator. The Android version is a normal app, not a screen overlay.
+
 ## Build
 
 ```powershell
@@ -53,25 +63,41 @@ Build outputs are written to `dist/`:
 
 Attach those files to a GitHub Release when publishing manually.
 
+### Android APK
+
+Local APK builds require Android Studio or an Android SDK:
+
+```powershell
+npm.cmd run android:build
+```
+
+The debug APK is written under `android/app/build/outputs/apk/debug/`.
+
 ## GitHub Release Artifacts
 
-The `Build Windows Release` workflow can also build downloadable artifacts on GitHub:
+The `Build Windows Release` workflow can build downloadable Windows artifacts on GitHub:
 
 1. Open the repository's Actions tab
 2. Run `Build Windows Release` manually to download the `windows-release` artifact
 3. Or create a GitHub Release; the workflow will build and attach the `.zip` and portable `.exe` to that release
 
+The `Build Android APK` workflow can build downloadable Android APK artifacts on GitHub:
+
+1. Open the repository's Actions tab
+2. Run `Build Android APK` manually to download the `android-debug-apk` artifact
+3. Or create a GitHub Release; the workflow will build and attach the debug `.apk` to that release
+
 ## Download & Run
 
 Released: 2026-05-02
 
-1. Download the Windows `.zip` or portable `.exe` from the latest release
-2. Unzip the file
-3. Run `Desktop Renai Revolution 2D.exe` inside the folder, or run the portable `.exe`
+1. Download the Windows `.zip`, portable `.exe`, or Android `.apk` from the latest release
+2. Unzip the Windows `.zip` if needed
+3. Run `Desktop Renai Revolution 2D.exe` inside the folder, run the portable `.exe`, or install the `.apk` on Android
 
 No internet connection required.
 
-**Supported OS:** Windows (x64)
+**Supported OS:** Windows (x64), Android
 
 ## Credits
 
